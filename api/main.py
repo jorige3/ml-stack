@@ -2,8 +2,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import requests
 import os
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="ML Stack API")
+Instrumentator().instrument(app).expose(app)
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
 
