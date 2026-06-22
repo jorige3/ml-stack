@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import requests
 import os
+import time
 from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="ML Stack API")
@@ -16,6 +17,11 @@ class GenerateRequest(BaseModel):
 @app.get("/")
 def health():
     return {"status": "ok", "stack": "ml-ready"}
+
+@app.get("/slow")
+def slow():
+    time.sleep(1)
+    return {"status": "slow response complete"}
 
 @app.post("/generate")
 def generate(req: GenerateRequest):
