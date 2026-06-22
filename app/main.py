@@ -1,43 +1,37 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 
-from app.llm import generate
-from app.memory import add, load
+from app.schemas import ChatRequest
+from app.llm import call_llm
+from app.memory import save_chat, get_history
 
-app = FastAPI(title="ChatGPT-like Local System")
+from app.stream import router as stream_router
 
-class ChatRequest(BaseModel):
-    prompt: str
-    model: str = "qwen2.5-coder:1.5b"
+app = FastAPI(title="ML Stack ChatGPT Clone")
+
+# only include streaming router for now
+app.include_router(stream_router)
 
 
 @app.post("/chat")
 def chat(req: ChatRequest):
 
-    history = load()
+    history = get_history(req.session_id)
 
-    # simple prompt injection of memory
-    context = "\n".join(
-        [f"User: {h['user']}\nAssistant: {h['assistant']}" for h in history[-5:]]
+    response = call_llm(
+        message=req.message,
+        history=history,
+        model=req.model
     )
 
-    full_prompt = f"""
-You are a helpful assistant.
-
-Conversation history:
-{context}
-
-User: {req.prompt}
-Assistant:
-"""
-
-    result = generate(req.model, full_prompt)
-
-    response_text = result.get("response", "")
-
-    add(req.prompt, response_text)
+    save_chat(req.session_id, req.message, response)
 
     return {
-        "response": response_text,
-        "model": req.model
+        "session_id": req.session_id,
+        "response": response,
+        "history": history + [
+            {
+                "user": req.message,
+                "assistant": response
+            }
+        ]
     }

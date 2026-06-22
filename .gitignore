@@ -1,2 +1,16 @@
+# Python
 __pycache__/
 *.pyc
+.venv/
+
+# Runtime data
+data/chats.json
+
+# VSCode
+.vscode/
+
+# uv
+.python-version
+
+# Logs
+*.log

@@ -1,13 +1,26 @@
-import requests
+import json
+from app.memory import load_memory
 
-EMBED_URL = "http://127.0.0.1:11434/api/embeddings"
+DATA_PATH = "data/chats.json"
 
-def embed(text: str):
-    r = requests.post(
-        EMBED_URL,
-        json={
-            "model": "nomic-embed-text:latest",
-            "prompt": text
-        }
-    )
-    return r.json()["embedding"]
+
+def retrieve_context(session_id: str, query: str):
+    memory = load_memory()
+
+    history = memory.get(session_id, [])
+
+    # simple baseline RAG (we’ll upgrade to embeddings later)
+    last_messages = history[-5:]
+
+    return last_messages
+
+
+def build_prompt(context, user_message: str):
+    formatted = ""
+
+    for item in context:
+        formatted += f"User: {item['user']}\nAssistant: {item['assistant']}\n"
+
+    formatted += f"\nUser: {user_message}\nAssistant:"
+
+    return formatted
