@@ -1,0 +1,6 @@
+Docker allows applications to run in containers.
+
+Key commands:
+docker build
+docker run
+docker compose up
