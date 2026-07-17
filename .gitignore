@@ -13,4 +13,4 @@ data/chats.json
 .python-version
 
 # Logs
-*.log
+*.log.env
