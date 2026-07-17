@@ -14,3 +14,4 @@ data/chats.json
 
 # Logs
 *.log.env
+.env
